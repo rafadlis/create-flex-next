@@ -7,7 +7,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "changelog": "npx changelog-from-release > CHANGELOG.md",
+    "changelog": "auto-changelog -p -t keepachangelog",
     "version": "npm run changelog && git add CHANGELOG.md",
     "release": "gh-release"
   },
