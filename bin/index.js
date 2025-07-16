@@ -119,8 +119,27 @@ const createFile = async (filePath, content) => {
   await fs.promises.writeFile(filePath, content)
 }
 
+const showHelp = () => {
+  console.log(`
+Usage: create-flex-next <project-name> [options]
+
+A CLI tool to quickly set up a Next.js project with better-auth, Drizzle ORM, and shadcn/ui.
+
+Options:
+  --help, -h         Display this help message.
+  --pnpm             Use pnpm as the package manager.
+  --npm              Use npm as the package manager.
+    `)
+}
+
 const getProjectDetails = async () => {
   const args = process.argv.slice(2)
+
+  if (args.includes("--help") || args.includes("-h")) {
+    showHelp()
+    process.exit(0)
+  }
+
   let projectName = args.find((arg) => !arg.startsWith("--"))
 
   if (!projectName) {
