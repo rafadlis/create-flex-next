@@ -1,0 +1,15 @@
+{
+  "name": "create-flexible-next",
+  "version": "1.0.0",
+  "main": "index.js",
+  "bin": {
+    "create-flexible-next": "./bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
