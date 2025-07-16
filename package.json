@@ -11,5 +11,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "@types/inquirer": "^8.2.4",
+    "inquirer": "^8.2.4"
+  }
 }

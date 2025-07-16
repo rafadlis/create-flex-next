@@ -5,6 +5,7 @@ const path = require("path")
 const fs = require("fs")
 const crypto = require("crypto")
 const readline = require("readline")
+const inquirer = require("inquirer")
 
 const runCommand = (command, options = {}) => {
   console.log(`$ ${command}`)
@@ -136,14 +137,15 @@ const getProjectDetails = async () => {
   } else if (args.includes("--npm")) {
     packageManager = "npm"
   } else {
-    const pmAnswer = await askQuestion(
-      "Which package manager would you like to use? (pnpm/npm) "
-    )
-    if (pmAnswer.toLowerCase() === "pnpm") {
-      packageManager = "pnpm"
-    } else {
-      packageManager = "npm" // default to npm
-    }
+    const pmAnswer = await inquirer.prompt([
+      {
+        type: "list",
+        name: "packageManager",
+        message: "Which package manager would you like to use?",
+        choices: ["pnpm", "npm"],
+      },
+    ])
+    packageManager = pmAnswer.packageManager
   }
 
   const hasPostgresAnswer = await askQuestion(
@@ -249,19 +251,22 @@ const createProjectFiles = async ({
 
   if (hasPostgres) {
     console.log("Generating auth configuration...")
-    await runCommand(`${packageRunner} @better-auth/cli generate -y`, {
-      cwd: projectPath,
-    })
+    await runCommand(
+      `${packageRunner} @better-auth/cli generate -y --output ./lib/schema-auth.ts`,
+      {
+        cwd: projectPath,
+      }
+    )
   } else {
     console.log(
-      `Skipping generation of auth configuration. You can run it later with \`${packageRunner} @better-auth/cli generate\``
+      `Skipping generation of auth configuration. You can run it later with \`${packageRunner} @better-auth/cli generate -output ./lib/schema-auth.ts\``
     )
   }
 }
 
 const finalizePnpmSetup = async ({ projectPath }) => {
   console.log("Finalizing setup for pnpm...")
-  await runCommand("pnpm approve-builds -g", { cwd: projectPath })
+  await runCommand("pnpm approve-builds", { cwd: projectPath })
   await runCommand("pnpm install", { cwd: projectPath })
 }
 
