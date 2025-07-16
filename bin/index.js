@@ -4,6 +4,7 @@ const { spawn } = require("child_process")
 const path = require("path")
 const fs = require("fs")
 const crypto = require("crypto")
+const readline = require("readline")
 
 const runCommand = (command, options = {}) => {
   console.log(`$ ${command}`)
@@ -24,6 +25,20 @@ const runCommand = (command, options = {}) => {
 
     childProcess.on("error", (error) => {
       reject(error)
+    })
+  })
+}
+
+const askQuestion = (query) => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+
+  return new Promise((resolve) => {
+    rl.question(query, (ans) => {
+      rl.close()
+      resolve(ans)
     })
   })
 }
@@ -87,7 +102,7 @@ const createEnvFileContent = () => {
   const secret = crypto.randomBytes(32).toString("hex")
   return `BETTER_AUTH_SECRET=${secret}
 BETTER_AUTH_URL=http://localhost:3000
-DATABASE_URL="postgres://postgres:postgres@localhost:5432/your_db"
+DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres"
 `
 }
 
@@ -96,22 +111,46 @@ const createFile = async (filePath, content) => {
   await fs.promises.writeFile(filePath, content)
 }
 
-const getProjectDetails = () => {
+const getProjectDetails = async () => {
   const args = process.argv.slice(2)
-  const projectName = args[0]
-  const packageManager = args.includes("--pnpm") ? "pnpm" : "npm"
+  let projectName = args.find((arg) => !arg.startsWith("--"))
 
   if (!projectName) {
-    console.error("Please provide a project name.")
-    console.log("Usage: create-flex-next <project-name> [--pnpm]")
-    process.exit(1)
+    projectName = await askQuestion("What is your project named? ")
+    if (!projectName) {
+      console.error("Please provide a project name.")
+      process.exit(1)
+    }
   }
+
+  let packageManager
+  if (args.includes("--pnpm")) {
+    packageManager = "pnpm"
+  } else if (args.includes("--npm")) {
+    packageManager = "npm"
+  } else {
+    const pmAnswer = await askQuestion(
+      "Which package manager would you like to use? (pnpm/npm) "
+    )
+    if (pmAnswer.toLowerCase() === "pnpm") {
+      packageManager = "pnpm"
+    } else {
+      packageManager = "npm" // default to npm
+    }
+  }
+
+  const hasPostgresAnswer = await askQuestion(
+    "Do you have PostgreSQL installed locally? (y/n) "
+  )
+  const hasPostgres =
+    hasPostgresAnswer.toLowerCase() === "y" ||
+    hasPostgresAnswer.toLowerCase() === "yes"
 
   const repoName =
     projectName === "./" || projectName === "." ? "" : projectName
   const projectPath = repoName ? path.resolve(repoName) : process.cwd()
 
-  return { projectName, packageManager, projectPath }
+  return { projectName, packageManager, projectPath, hasPostgres }
 }
 
 const setupProject = async ({
@@ -151,7 +190,11 @@ const installDependencies = async ({
   })
 }
 
-const createProjectFiles = async ({ projectPath, packageRunner }) => {
+const createProjectFiles = async ({
+  projectPath,
+  packageRunner,
+  hasPostgres,
+}) => {
   console.log("Creating .env file...")
   await createFile(path.join(projectPath, ".env"), createEnvFileContent())
 
@@ -171,15 +214,21 @@ const createProjectFiles = async ({ projectPath, packageRunner }) => {
     fileContents.drizzleConfig
   )
 
-  console.log("Generating auth configuration...")
-  await runCommand(`${packageRunner} @better-auth/cli generate -y`, {
-    cwd: projectPath,
-  })
+  if (hasPostgres) {
+    console.log("Generating auth configuration...")
+    await runCommand(`${packageRunner} @better-auth/cli generate -y`, {
+      cwd: projectPath,
+    })
+  } else {
+    console.log(
+      `Skipping generation of auth configuration. You can run it later with \`${packageRunner} @better-auth/cli generate\``
+    )
+  }
 }
 
 const finalizePnpmSetup = async ({ projectPath }) => {
   console.log("Finalizing setup for pnpm...")
-  await runCommand("pnpm approve-builds", { cwd: projectPath })
+  await runCommand("pnpm approve-builds -g", { cwd: projectPath })
   await runCommand("pnpm install", { cwd: projectPath })
 }
 
@@ -207,7 +256,8 @@ const cleanupAndCustomize = async ({ projectPath }) => {
 
 const main = async () => {
   try {
-    const { projectName, packageManager, projectPath } = getProjectDetails()
+    const { projectName, packageManager, projectPath, hasPostgres } =
+      await getProjectDetails()
 
     const packageRunner = packageManager === "pnpm" ? "pnpm dlx" : "npx"
     const installVerb = packageManager === "pnpm" ? "add" : "install"
@@ -219,7 +269,7 @@ const main = async () => {
       packageManager,
     })
     await installDependencies({ packageManager, installVerb, projectPath })
-    await createProjectFiles({ projectPath, packageRunner })
+    await createProjectFiles({ projectPath, packageRunner, hasPostgres })
     await cleanupAndCustomize({ projectPath })
 
     if (packageManager === "pnpm") {
