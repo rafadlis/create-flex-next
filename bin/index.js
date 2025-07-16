@@ -78,6 +78,9 @@ export default defineConfig({
     url: process.env.DATABASE_URL!,
   },
 });`,
+  page: `export default function Page() {
+  return <h1>Hello World</h1>
+}`,
 }
 
 const createEnvFileContent = () => {
@@ -100,7 +103,7 @@ const getProjectDetails = () => {
 
   if (!projectName) {
     console.error("Please provide a project name.")
-    console.log("Usage: create-better-app <project-name> [--pnpm]")
+    console.log("Usage: create-flex-next <project-name> [--pnpm]")
     process.exit(1)
   }
 
@@ -157,10 +160,7 @@ const createProjectFiles = async ({ projectPath, packageRunner }) => {
 
   console.log("Creating auth files...")
   await createFile(path.join(libDir, "auth.ts"), fileContents.auth)
-  await createFile(
-    path.join(libDir, "auth-client.ts"),
-    fileContents.authClient
-  )
+  await createFile(path.join(libDir, "auth-client.ts"), fileContents.authClient)
   await createFile(path.join(apiRouteDir, "route.ts"), fileContents.apiRoute)
 
   console.log("Creating database files...")
@@ -183,6 +183,28 @@ const finalizePnpmSetup = async ({ projectPath }) => {
   await runCommand("pnpm install", { cwd: projectPath })
 }
 
+const cleanupAndCustomize = async ({ projectPath }) => {
+  console.log("Cleaning up project...")
+
+  const publicDir = path.join(projectPath, "public")
+  try {
+    const files = await fs.promises.readdir(publicDir)
+    for (const file of files) {
+      if (file === ".gitkeep") continue
+      await fs.promises.unlink(path.join(publicDir, file))
+    }
+    console.log("Removed default files from public directory.")
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.warn(`Could not clean public directory: ${error.message}`)
+    }
+  }
+
+  const pagePath = path.join(projectPath, "app", "page.tsx")
+  await createFile(pagePath, fileContents.page)
+  console.log("Replaced page.tsx with a sample page.")
+}
+
 const main = async () => {
   try {
     const { projectName, packageManager, projectPath } = getProjectDetails()
@@ -198,6 +220,7 @@ const main = async () => {
     })
     await installDependencies({ packageManager, installVerb, projectPath })
     await createProjectFiles({ projectPath, packageRunner })
+    await cleanupAndCustomize({ projectPath })
 
     if (packageManager === "pnpm") {
       await finalizePnpmSetup({ projectPath })
