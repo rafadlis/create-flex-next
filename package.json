@@ -11,10 +11,14 @@
     "version": "npm run changelog && git add CHANGELOG.md",
     "release": "gh-release"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "create-flex-next",
+    "create-flex-next-app",
+    "create-flex-next-project"
+  ],
+  "author": "Rafadlis",
   "license": "ISC",
-  "description": "",
+  "description": "Create a new Flex Next project",
   "dependencies": {
     "@types/inquirer": "^8.2.4",
     "inquirer": "^8.2.4"
