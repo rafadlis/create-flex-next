@@ -40,3 +40,7 @@ and this project adheres to [Semantic Versioning](http://semver.org).
 - chore: Update package.json and package-lock.json to include new devDependencies and scripts for changelog generation and release management
 - init
 - Rename package from "create-flexible-next" to "create-flex-next" in package.json and package-lock.json. Update dependencies and ensure type safety in the configuration.
+
+
+[Unreleased]: https://github.com/rafadlis/create-flex-next/compare/v0.0.7...HEAD
+[0.0.7]: https://github.com/rafadlis/create-flex-next/tree/v0.0.7
