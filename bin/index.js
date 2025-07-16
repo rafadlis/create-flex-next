@@ -98,11 +98,18 @@ export default defineConfig({
 }`,
 }
 
-const createEnvFileContent = () => {
+const createEnvFileContent = (dbConfig) => {
   const secret = crypto.randomBytes(32).toString("hex")
+  let databaseUrl = "postgres://postgres:postgres@localhost:5432/postgres"
+  if (dbConfig) {
+    const { user, password, host, port, name } = dbConfig
+    databaseUrl = `postgres://${user}:${encodeURIComponent(
+      password
+    )}@${host}:${port}/${name}`
+  }
   return `BETTER_AUTH_SECRET=${secret}
 BETTER_AUTH_URL=http://localhost:3000
-DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres"
+DATABASE_URL="${databaseUrl}"
 `
 }
 
@@ -146,11 +153,33 @@ const getProjectDetails = async () => {
     hasPostgresAnswer.toLowerCase() === "y" ||
     hasPostgresAnswer.toLowerCase() === "yes"
 
+  let dbConfig = null
+  if (hasPostgres) {
+    const dbHost =
+      (await askQuestion("Database host? (default: localhost) ")) || "localhost"
+    const dbPort =
+      (await askQuestion("Database port? (default: 5432) ")) || "5432"
+    const dbUser =
+      (await askQuestion("Database user? (default: postgres) ")) || "postgres"
+    const dbPassword =
+      (await askQuestion("Database password? (default: postgres) ")) ||
+      "postgres"
+    const dbName =
+      (await askQuestion("Database name? (default: postgres) ")) || "postgres"
+    dbConfig = {
+      host: dbHost,
+      port: dbPort,
+      user: dbUser,
+      password: dbPassword,
+      name: dbName,
+    }
+  }
+
   const repoName =
     projectName === "./" || projectName === "." ? "" : projectName
   const projectPath = repoName ? path.resolve(repoName) : process.cwd()
 
-  return { projectName, packageManager, projectPath, hasPostgres }
+  return { projectName, packageManager, projectPath, hasPostgres, dbConfig }
 }
 
 const setupProject = async ({
@@ -194,9 +223,13 @@ const createProjectFiles = async ({
   projectPath,
   packageRunner,
   hasPostgres,
+  dbConfig,
 }) => {
   console.log("Creating .env file...")
-  await createFile(path.join(projectPath, ".env"), createEnvFileContent())
+  await createFile(
+    path.join(projectPath, ".env"),
+    createEnvFileContent(dbConfig)
+  )
 
   const libDir = path.join(projectPath, "lib")
   const apiRouteDir = path.join(projectPath, "app", "api", "auth", "[...all]")
@@ -256,7 +289,7 @@ const cleanupAndCustomize = async ({ projectPath }) => {
 
 const main = async () => {
   try {
-    const { projectName, packageManager, projectPath, hasPostgres } =
+    const { projectName, packageManager, projectPath, hasPostgres, dbConfig } =
       await getProjectDetails()
 
     const packageRunner = packageManager === "pnpm" ? "pnpm dlx" : "npx"
@@ -269,7 +302,12 @@ const main = async () => {
       packageManager,
     })
     await installDependencies({ packageManager, installVerb, projectPath })
-    await createProjectFiles({ projectPath, packageRunner, hasPostgres })
+    await createProjectFiles({
+      projectPath,
+      packageRunner,
+      hasPostgres,
+      dbConfig,
+    })
     await cleanupAndCustomize({ projectPath })
 
     if (packageManager === "pnpm") {
