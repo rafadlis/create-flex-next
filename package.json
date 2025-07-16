@@ -7,8 +7,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "changelog": "auto-changelog -p -t keepachangelog",
-    "version": "npm run changelog && git add CHANGELOG.md",
+    "version": "changelog && git add CHANGELOG.md",
     "release": "gh-release"
   },
   "keywords": [
@@ -28,7 +27,8 @@
     "inquirer": "^8.2.4"
   },
   "devDependencies": {
-    "auto-changelog": "^2.5.0",
-    "gh-release": "^7.0.2"
+    "changelog-verify": "^1.1.2",
+    "gh-release": "^7.0.2",
+    "version-changelog": "^3.1.1"
   }
 }
