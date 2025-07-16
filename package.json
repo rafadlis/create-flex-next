@@ -7,28 +7,55 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "version": "version-changelog CHANGELOG.md && changelog-verify CHANGELOG.md && git add CHANGELOG.md",
-    "release": "gh-release"
+    "prepublishOnly": "npm test",
+    "preversion": "npm test",
+    "version": "git add -A",
+    "postversion": "git push && git push --tags",
+    "release:patch": "npm version patch && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:major": "npm version major && npm publish",
+    "release:beta": "npm version prerelease --preid=beta && npm publish --tag beta",
+    "release:alpha": "npm version prerelease --preid=alpha && npm publish --tag alpha"
   },
   "keywords": [
     "create-flex-next",
     "create-flex-next-app",
-    "create-flex-next-project"
+    "create-flex-next-project",
+    "nextjs",
+    "react",
+    "typescript",
+    "cli",
+    "scaffold",
+    "generator"
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:rafadlis/create-flex-next.git"
+    "url": "git+https://github.com/rafadlis/create-flex-next.git"
   },
-  "author": "Rafadlis",
-  "license": "ISC",
-  "description": "Create a new Flex Next project",
+  "bugs": {
+    "url": "https://github.com/rafadlis/create-flex-next/issues"
+  },
+  "homepage": "https://github.com/rafadlis/create-flex-next#readme",
+  "author": {
+    "name": "Rafadlis",
+    "url": "https://github.com/rafadlis"
+  },
+  "license": "MIT",
+  "description": "Create a new Flex Next project with TypeScript, Tailwind CSS, and modern development tools",
+  "files": [
+    "bin/",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
   "dependencies": {
     "@types/inquirer": "^8.2.4",
     "inquirer": "^8.2.4"
   },
   "devDependencies": {
-    "changelog-verify": "^1.1.2",
-    "gh-release": "^7.0.2",
-    "version-changelog": "^3.1.1"
+    "np": "^9.2.0"
   }
 }
