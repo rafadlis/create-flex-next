@@ -7,7 +7,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "changelog": "auto-changelog -p",
+    "changelog": "npx changelog-from-release > CHANGELOG.md",
     "version": "npm run changelog && git add CHANGELOG.md",
     "release": "gh-release"
   },
@@ -16,6 +16,10 @@
     "create-flex-next-app",
     "create-flex-next-project"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:rafadlis/create-flex-next.git"
+  },
   "author": "Rafadlis",
   "license": "ISC",
   "description": "Create a new Flex Next project",
