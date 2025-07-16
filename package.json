@@ -8,7 +8,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "changelog": "auto-changelog -p",
-    "versioning": "npm run changelog && git add CHANGELOG.md",
+    "version": "npm run changelog && git add CHANGELOG.md",
     "release": "gh-release"
   },
   "keywords": [],
