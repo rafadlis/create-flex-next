@@ -3,7 +3,7 @@
   "version": "0.0.8",
   "main": "index.js",
   "bin": {
-    "create-flex-next": "./bin/index.js"
+    "create-flex-next": "bin/index.js"
   },
   "scripts": {
     "test": "echo \"No tests specified\" && exit 0",
