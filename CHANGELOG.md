@@ -1,46 +1,53 @@
-# create-flex-next change log
+# Changelog
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com)
-and this project adheres to [Semantic Versioning](http://semver.org).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [Unreleased]
 
-## 0.0.6 - 2025-07-17
+### Added
 
-- docs: update changelog
-- chore(release): 0.0.6
-- docs: update changelog
-- chore(release): 0.0.6
-- docs: update changelog
-- chore(release): 0.0.6
-- docs: update changelog
-- chore(release): 0.0.6
-- docs: update changelog
-- chore(release): 0.0.6
-- docs: update changelog
-- chore(release): 0.0.6
+- Enhanced release process with GitHub Actions automation
+- Automatic GitHub releases with changelog-based descriptions
+- Support for pre-release versions (alpha, beta)
 
-## 0.0.5 - 2025-07-16
+### Changed
 
-- chore: add npm keywords and description
+- Refactored package.json for better npm publishing workflow
+- Updated dependencies and removed custom release tools
 
-## 0.0.4 - 2025-07-16
+### Fixed
 
-- feat: add readme.md file to tell what this project about
-- chore: update changelog.d
+- Test script now allows successful releases
 
-## 0.0.3 - 2025-07-16
+## [0.0.8] - 2025-01-17
 
-- chore: Rename versioning script to version in package.json for consistency
+### Changed
 
-## 0.0.2 - 2025-07-16
+- Refactored package.json for proper npm versioning and GitHub releases
+- Updated release scripts for semantic versioning
+- Improved package metadata and configuration
 
-- chore: Update package.json and package-lock.json to include new devDependencies and scripts for changelog generation and release management
-- init
-- Rename package from "create-flexible-next" to "create-flex-next" in package.json and package-lock.json. Update dependencies and ensure type safety in the configuration.
+### Fixed
 
+- Test script updated to allow releases
 
-[Unreleased]: https://github.com/rafadlis/create-flex-next/compare/v0.0.7...HEAD
-[0.0.7]: https://github.com/rafadlis/create-flex-next/tree/v0.0.7
+## [0.0.7] - 2025-01-17
+
+### Added
+
+- Initial create-flex-next CLI functionality
+- TypeScript support
+- Tailwind CSS integration
+- Modern development tools setup
+
+### Changed
+
+- Improved project scaffolding
+- Enhanced CLI interface
+
+[Unreleased]: https://github.com/rafadlis/create-flex-next/compare/v0.0.8...HEAD
+[0.0.8]: https://github.com/rafadlis/create-flex-next/compare/v0.0.7...v0.0.8
+[0.0.7]: https://github.com/rafadlis/create-flex-next/releases/tag/v0.0.7

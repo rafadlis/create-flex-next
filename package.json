@@ -7,15 +7,11 @@
   },
   "scripts": {
     "test": "echo \"No tests specified\" && exit 0",
-    "prepublishOnly": "npm test",
-    "preversion": "npm test",
-    "version": "git add -A",
-    "postversion": "git push && git push --tags",
-    "release:patch": "npm version patch && npm publish",
-    "release:minor": "npm version minor && npm publish",
-    "release:major": "npm version major && npm publish",
-    "release:beta": "npm version prerelease --preid=beta && npm publish --tag beta",
-    "release:alpha": "npm version prerelease --preid=alpha && npm publish --tag alpha"
+    "dev": "node ./bin/index.js",
+    "build": "echo \"No build step required\" && exit 0",
+    "local:patch": "npm version patch",
+    "local:minor": "npm version minor",
+    "local:major": "npm version major"
   },
   "keywords": [
     "create-flex-next",
@@ -55,7 +51,5 @@
     "@types/inquirer": "^8.2.4",
     "inquirer": "^8.2.4"
   },
-  "devDependencies": {
-    "np": "^9.2.0"
-  }
+  "devDependencies": {}
 }
