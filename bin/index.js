@@ -47,16 +47,20 @@ const askQuestion = (query) => {
 const fileContents = {
   auth: `import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
-import { db } from "@/lib/db"; // your drizzle instance
- 
+import { nextCookies } from "better-auth/next-js"
+
+import { db } from "@/lib/db" // your drizzle instance
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-        provider: "pg", // or "mysql", "sqlite"
-    }),
+    provider: "pg", // or "mysql", "sqlite"
+  }),
   emailAndPassword: {
-    enabled: true, 
-  }
-})`,
+    enabled: true,
+  },
+  plugins: [nextCookies()],
+})
+`,
   apiRoute: `import { auth } from "@/lib/auth"
 import { toNextJsHandler } from "better-auth/next-js"
  
@@ -67,6 +71,16 @@ export const authClient = createAuthClient({
     /** The base URL of the server (optional if you're using the same domain) */
     baseURL: "http://localhost:3000"
 })`,
+  middleware: `import { getCookieCache } from "better-auth/cookies"
+import { NextRequest, NextResponse } from "next/server"
+
+export async function middleware(request: NextRequest) {
+  const session = await getCookieCache(request)
+  if (!session) {
+    return NextResponse.redirect(new URL("/sign-in", request.url))
+  }
+  return NextResponse.next()
+}`,
   schema: `import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -220,6 +234,16 @@ const setupProject = async ({
   await runCommand(`${packageRunner} shadcn@latest init -y -b neutral`, {
     cwd: projectPath,
   })
+
+  console.log("add necessary sidebar component...")
+  await runCommand(`${packageRunner} shadcn@latest add sidebar-08 -y -o`, {
+    cwd: projectPath,
+  })
+
+  console.log("add login components...")
+  await runCommand(`${packageRunner} shadcn@latest add login-03 -y -o`, {
+    cwd: projectPath,
+  })
 }
 
 const installDependencies = async ({
@@ -252,6 +276,12 @@ const createProjectFiles = async ({
     createEnvFileContent(dbConfig)
   )
 
+  console.log("Creating middleware file...")
+  await createFile(
+    path.join(projectPath, "middleware.ts"),
+    fileContents.middleware
+  )
+
   const libDir = path.join(projectPath, "lib")
   const apiRouteDir = path.join(projectPath, "app", "api", "auth", "[...all]")
 
@@ -271,7 +301,7 @@ const createProjectFiles = async ({
   if (hasPostgres) {
     console.log("Generating auth configuration...")
     await runCommand(
-      `${packageRunner} @better-auth/cli generate -y --output ./lib/schema-auth.ts`,
+      `${packageRunner} @better-auth/cli generate -y --output ./lib/schemas/schema-auth.ts`,
       {
         cwd: projectPath,
       }
