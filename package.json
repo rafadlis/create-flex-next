@@ -1,6 +1,6 @@
 {
   "name": "create-flex-next",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "main": "index.js",
   "bin": {
     "create-flex-next": "bin/index.js"
